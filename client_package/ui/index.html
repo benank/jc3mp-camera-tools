@@ -1,0 +1,45 @@
+<html>
+    <title>JC3MP Cinematic Tools</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+    <div class="window">
+        <div class="title">JC3MP Cinematic Tools</div>
+        <div class="container">
+            <div class="entry">
+                Movement Speed
+                <input id="ms" type="range" min="0" max="3" step=".05" value="1" />
+            </div>
+            <div class="entry">
+                Rotation Speed
+                <input id="rs" type="range" min="0.001" max="0.06" step=".001" value="0.03" />
+            </div>
+            <div class="entry">
+                Time of Day
+                <input id="tod" type="range" min="0" max="24" step=".5" value="12" />
+            </div>
+            <div class="entry">
+                Disable HUD
+                <input id="dhd" type="checkbox" />
+            </div>
+            <div class="entry">
+                Camera Type<br>
+                <input type="radio" id="frcm" name="cam"> Freecam<br>
+                <input type="radio" id="trcm" name="cam"> Tracking Cam (near)<br>
+                <input type="radio" id="trcm2" name="cam"> Tracking Cam (far)<br>
+                <input type="radio" id="ptcm" name="cam"> Pathing Cam<br>
+                <input type="radio" id="dfcm" name="cam" checked="checked"> Default Cam
+            </div>
+            <div class="entry">
+                <button type="button" id="snp">Start a new Path</button>
+                <button type="button" id="app">Add Point to Path</button>
+            </div>
+            <div class="entry">
+                Follow player:
+                <input type="text" placeholder="Enter a name..." id="ean"></input><br>
+                <span id="pfl">Currently Following: None</span>
+            </div>
+        </div>
+    </div>
+</html>

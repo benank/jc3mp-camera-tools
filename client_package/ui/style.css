@@ -1,0 +1,53 @@
+
+* 
+{
+	user-select: none;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400px;
+    cursor: default;
+    font-size: 16px;
+}
+
+html
+{
+    visibility: hidden;
+    color: white;
+}
+
+
+
+div.window
+{
+    position: fixed;
+    left: 50%;
+    top: 10%;
+    width: 30%;
+    height: 60%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 1);
+    transform: translateX(-50%);
+}
+
+div.title
+{
+    position: absolute;
+    font-size: 40px;
+    font-weight: bold;
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+}
+
+div.container
+{
+    position: absolute;
+    top: 15%;
+    height: 90%;
+    width: 100%;
+}
+
+div.entry
+{
+    width: fit-content;
+    margin: 15px;
+}
