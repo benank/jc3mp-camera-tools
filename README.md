@@ -15,4 +15,3 @@ Just drop it in your packages directory, and you're done!
 - The camera position is a little weird sometimes when players grapple or wingsuit when using the tracking camera.
 - Your player will no longer be able to move after exiting pathing camera.
 - Pathing camera isn't fully smoothed yet.
-- Requires [KeyPress](https://github.com/noobasaurus/jc3mp-keypress).

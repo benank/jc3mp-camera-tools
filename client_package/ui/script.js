@@ -18,6 +18,9 @@ $(document).ready(function()
     })
 
 
+    document.onkeydown = (e) => {
+        jcmp.CallEvent('ctools/KeyDown', e.keyCode);
+    };
 
     document.onkeyup = (e) => 
     {
@@ -41,6 +44,7 @@ $(document).ready(function()
                 jcmp.HideCursor();
             }
         }
+        jcmp.CallEvent('ctools/KeyUp', e.keyCode);
     };
 
     jcmp.AddEvent('ctools/changetofrcm', () => {

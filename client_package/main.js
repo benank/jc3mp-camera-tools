@@ -13,7 +13,6 @@ let rotations = [];
 let path_index = 0;
 let tracked_player = null;
 
-
 jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
     if (id == "ms") // Movement speed
     {
@@ -82,6 +81,10 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
         positions.push(jcmp.localPlayer.camera.position);
         rotations.push(jcmp.localPlayer.camera.rotation);
     }
+    else if (id == "fov" && cam_type != 'dfcm') // Adjust FOV
+    {
+        jcmp.localPlayer.camera.fieldOfView = parseFloat(value);
+    }
     else if (id == "ean") // Switch current tracking player
     {
         let player = null;
@@ -106,14 +109,14 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
     }
 })
 
-jcmp.ui.AddEvent('KeyDown', key => {
+jcmp.ui.AddEvent('ctools/KeyDown', key => {
     if (cam_type == "frcm" && can_use && keys.indexOf(key) == -1)
     {
         keys.push(key);
     }
 })
 
-jcmp.ui.AddEvent('KeyUp', key => {
+jcmp.ui.AddEvent('ctools/KeyUp', key => {
     if (cam_type == "frcm" && can_use && keys.indexOf(key) > -1)
     {
         keys.splice(keys.indexOf(key), 1);
