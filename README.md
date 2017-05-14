@@ -13,5 +13,5 @@ Just drop it in your packages directory, and you're done!
 ## Notes
 - The camera rotation does not change for players in cars when using the tracking camera.
 - The camera position is a little weird sometimes when players grapple or wingsuit when using the tracking camera.
-- Your player will no longer be able to move after exiting pathing camera.
 - Pathing camera isn't fully smoothed yet.
+- Controllers are now supported. Use Left Stick to move left/right/forward/backward, use Right Stick to move up/down, use the X button to toggle between movement mode and rotation mode, and use the B button to toggle freecam mode.

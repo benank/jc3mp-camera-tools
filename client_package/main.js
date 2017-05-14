@@ -12,6 +12,12 @@ let positions = [];
 let rotations = [];
 let path_index = 0;
 let tracked_player = null;
+let tracked_id = null;
+let controller_pos = true;
+let teleport_to_camera = false;
+let lc = false;
+let rc = false;
+let quick_fr_toggle = true;
 
 jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
     if (id == "ms") // Movement speed
@@ -38,7 +44,6 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
     {
         jcmp.events.CallRemote('ctools/invul');
         cam_type = "frcm";
-        jcmp.localPlayer.controlsEnabled = false;
         jcmp.localPlayer.frozen = true;
         jcmp.localPlayer.camera.attachedToPlayer = false;
         to_pos = jcmp.localPlayer.camera.position;
@@ -48,28 +53,36 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
     {
         jcmp.events.CallRemote('ctools/invul');
         cam_type = id;
-        jcmp.localPlayer.controlsEnabled = false;
         jcmp.localPlayer.camera.attachedToPlayer = false;
         jcmp.localPlayer.frozen = true;
     }
     else if (id == "ptcm") // Pathing cam
     {
-        jcmp.events.CallRemote('ctools/invul');
-        cam_type = "ptcm";
-        path_index = 0;
-        jcmp.localPlayer.controlsEnabled = false;
-        jcmp.localPlayer.camera.attachedToPlayer = false;
-        jcmp.localPlayer.frozen = true;
-        jcmp.localPlayer.camera.position = positions[path_index];
-        jcmp.localPlayer.camera.rotation = rotations[path_index];
+        if (cam_type == "frcm" && positions.length >= 3)
+        {
+            jcmp.events.CallRemote('ctools/invul');
+            cam_type = "ptcm";
+            path_index = 0;
+            jcmp.localPlayer.camera.position = positions[path_index];
+            jcmp.localPlayer.camera.rotation = rotations[path_index];
+        }
+        else
+        {
+            jcmp.ui.CallEvent('ctools/changetofrcm');
+        }
     }
     else if (id == "dfcm") // Default cam
     {
+        if (cam_type != "dfcm" && teleport_to_camera)
+        {
+            const pos = jcmp.localPlayer.camera.position;
+            jcmp.events.CallRemote('ctools/tptocam', pos.x, pos.y, pos.z);
+        }
+
         jcmp.events.CallRemote('ctools/noinvul');
         cam_type = "dfcm";
         jcmp.localPlayer.camera.attachedToPlayer = true;
         jcmp.localPlayer.frozen = false;
-        jcmp.localPlayer.controlsEnabled = true;
     }
     else if (id == "snp") // Start new path
     {
@@ -100,12 +113,26 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
             //jcmp.debug('player found with name ' + value);
             jcmp.ui.CallEvent('ctools/changetracked', player.name);
             tracked_player = player;
+            tracked_id = player.networkId;
         }
         else
         { 
             //jcmp.debug('no player found with name ' + value);
             tracked_player = null;
+            tracked_id = null;
         }
+    }
+    else if (id == "tpc")
+    {
+        teleport_to_camera = !teleport_to_camera;
+    }
+    else if (id == "gtog")
+    {
+        quick_fr_toggle = !quick_fr_toggle;
+    }
+    else if (id == 'changeWeather')
+    {
+        jcmp.events.CallRemote('ctools/ChangeWeather', value);
     }
 })
 
@@ -123,6 +150,10 @@ jcmp.ui.AddEvent('ctools/KeyUp', key => {
     }
 })
 
+jcmp.events.AddRemoteCallable('ctools/ChangeWeather', (weather) => {
+    jcmp.world.weather = weather;
+})
+
 jcmp.ui.AddEvent('ctools/ToggleOpen', (o) => {
     if (cam_type == "dfcm")
     {
@@ -130,8 +161,172 @@ jcmp.ui.AddEvent('ctools/ToggleOpen', (o) => {
     }
 })
 
+// left = 6 right = 7
+
+jcmp.ui.AddEvent('ctools/controller_axes', (axis, value) => {
+    if (controller_pos)
+    {
+        ProcessControllerPosition(axis, value * 0.1);
+    }
+    else
+    {
+        ProcessControllerRotation(axis, value * 0.1);
+    }
+
+    if (axis == 6)
+    {
+        lc = true;
+    }
+    else if (axis == 7)
+    {
+        rc = true;
+    }
+
+})
+
+jcmp.ui.AddEvent('ctools/controller_button', (button) => {
+    //jcmp.debug("BUTTON: " + button);
+    if (button == 2) // x button
+    {
+        controller_pos = !controller_pos;
+    }
+    else if (button == 1 && quick_fr_toggle) // b button
+    {
+        if (cam_type == "frcm")
+        {  
+            if (cam_type != "dfcm" && teleport_to_camera)
+            {
+                const pos = jcmp.localPlayer.camera.position;
+                jcmp.events.CallRemote('ctools/tptocam', pos.x, pos.y, pos.z);
+            }
+
+            jcmp.events.CallRemote('ctools/noinvul');
+            cam_type = "dfcm";
+            jcmp.localPlayer.camera.attachedToPlayer = true;
+            jcmp.localPlayer.frozen = false;
+        }
+        else
+        {
+            jcmp.events.CallRemote('ctools/invul');
+            cam_type = "frcm";
+            jcmp.localPlayer.frozen = true;
+            jcmp.localPlayer.camera.attachedToPlayer = false;
+            to_pos = jcmp.localPlayer.camera.position;
+            to_rot = jcmp.localPlayer.camera.rotation;
+        }
+    }
+    else if (button == 4) // left bumper
+    {
+        jcmp.localPlayer.camera.fieldOfView = (jcmp.localPlayer.camera.fieldOfView + 0.025 > 3) ? 
+        jcmp.localPlayer.camera.fieldOfView : jcmp.localPlayer.camera.fieldOfView + 0.025;
+    }
+    else if (button == 5) // right bumper
+    {
+        jcmp.localPlayer.camera.fieldOfView = (jcmp.localPlayer.camera.fieldOfView - 0.025 < 0.1) ? 
+        jcmp.localPlayer.camera.fieldOfView : jcmp.localPlayer.camera.fieldOfView - 0.025;
+    }
+})
+
+function ProcessControllerPosition(index, value)
+{
+    switch(index)
+    {
+        // Position
+        case 1: // Forward/Backward
+        {
+            if (value > 0)
+            {
+                to_pos = to_pos.add(vq(new Vector3f(0,0,-speed * value), jcmp.localPlayer.camera.rotation));
+            }
+            else
+            {
+                to_pos = to_pos.add(vq(new Vector3f(0,0,-speed * value), jcmp.localPlayer.camera.rotation));
+            }
+            break;
+        }
+        case 0: // Left/Right
+        {
+            if (value > 0)
+            {
+                to_pos = to_pos.add(vq(new Vector3f(speed * value,0,0), jcmp.localPlayer.camera.rotation));
+            }
+            else
+            {
+                to_pos = to_pos.add(vq(new Vector3f(speed * value,0,0), jcmp.localPlayer.camera.rotation));
+            }
+            break;
+        }
+        case 3: // Up/Down
+        {
+            if (value > 0)
+            {
+                to_pos = to_pos.add(new Vector3f(0,-speed * value,0));
+            }
+            else
+            {
+                to_pos = to_pos.add(new Vector3f(0,-speed * value,0));
+            }
+            break;
+        }
+    }
+}
+
+function ProcessControllerRotation(index, value)
+{
+    switch(index)
+    {
+        // Rotation
+        case 0: // Left/Right
+        {
+            if (value > 0)
+            {
+                to_rot = to_rot.add(new Vector3f(0,rot_speed * value,0));
+            }
+            else
+            {
+                to_rot = to_rot.add(new Vector3f(0,rot_speed * value,0));
+            }
+            break;
+        }
+        case 1: // Up/Down
+        {
+            if (value > 0)
+            {
+                to_rot = to_rot.add(new Vector3f(rot_speed * value,0,0));
+            }
+            else
+            {
+                to_rot = to_rot.add(new Vector3f(rot_speed * value,0,0));
+            }
+            break;
+        }
+        case 6:
+        {
+            ProcessControllerRotation(0, -1);
+            break;
+        }
+        case 7:
+        {
+            ProcessControllerRotation(0, 1);
+            break;
+        }
+    }
+}
+
 jcmp.events.AddRemoteCallable('ctools/TODbroadcast', (tod) => {
-    jcmp.world.SetTime(parseInt(tod), 60 * (parseFloat(tod) - Math.floor(parseFloat(tod))));
+    jcmp.events.Call('synctime/Disable');
+    jcmp.world.SetTime(parseInt(tod), 60 * (parseFloat(tod) - Math.floor(parseFloat(tod))), 0);
+})
+
+jcmp.ui.AddEvent('ctools/pathingsynccheck', () => {
+    if (cam_type == "trcm" || cam_type == "trcm2")
+    {
+        if (tracked_id != null && (typeof tracked_player == 'undefined' || tracked_player == null 
+        || dist(jcmp.localPlayer.position, jcmp.localPlayer.camera.position) > 300))
+        {
+            jcmp.events.CallRemote('ctools/movespectator', tracked_id);
+        }
+    }
 })
 
 function ProcessKey(key)
@@ -207,6 +402,18 @@ jcmp.events.Add('GameUpdateRender', (r) => {
             });
             jcmp.localPlayer.camera.position = lerp(jcmp.localPlayer.camera.position, to_pos, 0.5);
             jcmp.localPlayer.camera.rotation = to_rot;
+            
+            if (lc == 6)
+            {
+                ProcessKey(37);
+                lc = false;
+            }
+            else if (rc == 7)
+            {
+                ProcessKey(39);
+                rc = false;
+            }
+
         }
         else if (cam_type == "ptcm" && positions.length >= 2)
         {
@@ -238,7 +445,7 @@ jcmp.events.Add('GameUpdateRender', (r) => {
                 rotations[(path_index+1 >= rotations.length) ? path_index : path_index+1],
                 dtime);
 
-            jcmp.debug("speed: " + speed + "time: " + dtime);
+            //jcmp.debug("speed: " + speed + "time: " + dtime);
             
             //if (dist(jcmp.localPlayer.camera.position, positions[path_index]) < 1)
             if (dtime >= 1)
@@ -268,15 +475,15 @@ jcmp.events.Add('GameUpdateRender', (r) => {
             }
             to_pos = p_pos.add(vq(offset, jcmp.localPlayer.camera.rotation));
             to_rot = p_rot;
-            jcmp.localPlayer.camera.rotation = lerp3(jcmp.localPlayer.camera.rotation, to_rot, 0.3);
+            jcmp.localPlayer.camera.rotation = lerp(jcmp.localPlayer.camera.rotation, to_rot, 0.3);
             jcmp.localPlayer.camera.position = lerp(jcmp.localPlayer.camera.position, to_pos, 0.3);
         }
 
     }
 })
 
-jcmp.ui.AddEvent('freecam/mousemove', (x, y) => {
-    //jcmp.debug("x: " + x + " y: " + y);
+jcmp.ui.AddEvent('ctools/debug', (s) => {
+    //jcmp.debug(s);
 })
 
 
@@ -301,11 +508,6 @@ function lerp(a,b,t)
 function lerp2(a,b,t)
 {
     return (a.add(b.mul(new Vector3f(t,t,t))));
-}
-
-function lerp3(a,b,t)
-{
-    return (a.add( ( b.sub(a) ).mul(new Vector3f(t,t,t)) ));
 }
 
 function bezier(a,b,c,t)

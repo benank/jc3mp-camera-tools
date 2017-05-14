@@ -9,23 +9,33 @@
         <div class="container">
             <div class="entry">
                 Movement Speed
-                <input id="ms" type="range" min="0" max="3" step=".05" value="1" />
+                <input id="ms" type="range" min="0" max="3" step=".01" value="1" />
             </div>
             <div class="entry">
                 Rotation Speed
-                <input id="rs" type="range" min="0.001" max="0.06" step=".001" value="0.03" />
+                <input id="rs" type="range" min="0.001" max="0.06" step=".0005" value="0.03" />
             </div>
             <div class="entry">
                 Time of Day
-                <input id="tod" type="range" min="0" max="24" step=".5" value="12" />
+                <input id="tod" type="range" min="0" max="24" step=".1" value="12" />
             </div>
             <div class="entry">
                 FOV
                 <input id="fov" type="range" min="0.1" max="3" step="0.05" value="1" />
             </div>
             <div class="entry">
-                Disable HUD
-                <input id="dhd" type="checkbox" />
+                Weather: 
+                <select>
+                    <option value="base">Base</option>
+                    <option value="rain">Rain</option>
+                    <option value="overcast">Overcast</option>
+                    <option value="thunderstorm">Thunderstorm</option>
+                    <option value="fog">Fog</option>
+                    <option value="snow">Snow</option>
+                </select>
+            </div>
+            <div class="entry">
+                To hide the HUD, press ESC -> OPTIONS -> GAMEPLAY -> HUD
             </div>
             <div class="entry">
                 Camera Type<br>
@@ -43,6 +53,17 @@
                 Follow player:
                 <input type="text" placeholder="Enter a name..." id="ean"></input><br>
                 <span id="pfl">Currently Following: None</span>
+            </div>
+            <div class="entry">
+                Teleport to camera position on switch to default camera
+                <input id="tpc" type="checkbox" />
+            </div>
+            <div class="entry">
+                <span id="gdf">No gamepad connected</span>
+            </div>
+            <div class="entry">
+                Press B on gamepad to toggle freecam
+                <input id="gtog" type="checkbox" checked />
             </div>
         </div>
     </div>
