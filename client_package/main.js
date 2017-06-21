@@ -1,4 +1,5 @@
 const ui = new WebUIWindow('ctools', 'package://ctools/ui/index.html', new Vector2(jcmp.viewportSize.x, jcmp.viewportSize.y));
+const ui_mouse = new WebUIWindow('ctools_mouse', 'package://ctools/ui/mouse/index.html', new Vector2(jcmp.viewportSize.x, jcmp.viewportSize.y));
 
 let can_use = true;
 let cam_type = "dfcm";
@@ -150,6 +151,11 @@ jcmp.ui.AddEvent('ctools/KeyUp', key => {
     }
 })
 
+jcmp.ui.AddEvent('ctools/MouseMove', (x, y) => 
+{
+    to_rot = to_rot.add(new Vector3f(x,0,y));
+})
+
 jcmp.events.AddRemoteCallable('ctools/ChangeWeather', (weather) => {
     jcmp.world.weather = weather;
 })
@@ -185,7 +191,7 @@ jcmp.ui.AddEvent('ctools/controller_axes', (axis, value) => {
 })
 
 jcmp.ui.AddEvent('ctools/controller_button', (button) => {
-    //jcmp.debug("BUTTON: " + button);
+    jcmp.debug("BUTTON: " + button);
     if (button == 2) // x button
     {
         controller_pos = !controller_pos;
@@ -483,7 +489,7 @@ jcmp.events.Add('GameUpdateRender', (r) => {
 })
 
 jcmp.ui.AddEvent('ctools/debug', (s) => {
-    //jcmp.debug(s);
+    jcmp.debug(s);
 })
 
 
