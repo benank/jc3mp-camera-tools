@@ -1,5 +1,9 @@
 const ui = new WebUIWindow('ctools', 'package://ctools/ui/index.html', new Vector2(jcmp.viewportSize.x, jcmp.viewportSize.y));
 const ui_mouse = new WebUIWindow('ctools_mouse', 'package://ctools/ui/mouse/index.html', new Vector2(jcmp.viewportSize.x, jcmp.viewportSize.y));
+ui_mouse.hidden = false;
+ui_mouse.captureMouseInput = true;
+ui_mouse.BringToFront();
+
 
 let can_use = true;
 let cam_type = "dfcm";
@@ -151,9 +155,9 @@ jcmp.ui.AddEvent('ctools/KeyUp', key => {
     }
 })
 
-jcmp.ui.AddEvent('ctools/MouseMove', (x, y) => 
+jcmp.ui.AddEvent('ctools/MouseMove', (y, x) => 
 {
-    to_rot = to_rot.add(new Vector3f(x,0,y));
+    to_rot = to_rot.add(new Vector3f(-x * rot_speed * 0.075,-y * rot_speed * 0.075,0));
 })
 
 jcmp.events.AddRemoteCallable('ctools/ChangeWeather', (weather) => {
