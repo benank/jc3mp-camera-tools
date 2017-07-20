@@ -134,6 +134,17 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
     {
         jcmp.events.CallRemote('ctools/ChangeWeather', value);
     }
+    else if (id == 'hdh')
+    {
+        if (jcmp.ui.IsHudVisible())
+        {
+            jcmp.ui.HideHud();
+        }
+        else
+        {
+            jcmp.ui.ShowHud();
+        }
+    }
 })
 
 jcmp.ui.AddEvent('ctools/KeyDown', key => {
@@ -185,7 +196,7 @@ jcmp.ui.AddEvent('ctools/controller_axes', (axis, value) => {
 })
 
 jcmp.ui.AddEvent('ctools/controller_button', (button) => {
-    //jcmp.debug("BUTTON: " + button);
+    jcmp.debug("BUTTON: " + button);
     if (button == 2) // x button
     {
         controller_pos = !controller_pos;
@@ -483,7 +494,7 @@ jcmp.events.Add('GameUpdateRender', (r) => {
 })
 
 jcmp.ui.AddEvent('ctools/debug', (s) => {
-    //jcmp.debug(s);
+    jcmp.debug(s);
 })
 
 
