@@ -2,6 +2,7 @@ $(document).ready(function()
 {
 
     const open_key = 117; // F6
+    const defaults = {'ms': 1, 'rs': 0.03, 'tod': 12, 'fov': 1};
     let open = false;
 
     if (!open) {$('html').fadeOut(1)}
@@ -9,17 +10,50 @@ $(document).ready(function()
 
     $("input").change(function()
     {
-        jcmp.CallEvent('ctools/ChangeInput', $(this).attr('id'), $(this).val());
+        let id = $(this).attr('id');
+        let value = parseFloat($(this).val());
+
+        if ($(this).hasClass('slider'))
+        {
+            if (id.indexOf('_t') > -1) // Manually changed value
+            {
+                id = id.replace('_t', '');
+                $(`#${id}`).val(value);
+            }
+            else
+            {
+                $(`#${id}_t`).val(value);
+            }
+        }
+
+        jcmp.CallEvent('ctools/ChangeInput', id, value);
     })
 
     $("button").click(function()
     {
-        jcmp.CallEvent('ctools/ChangeInput', $(this).attr('id'));
+        if (!$(this).hasClass('reset'))
+        {
+            jcmp.CallEvent('ctools/ChangeInput', $(this).attr('id'));
+        }
+        else
+        {
+            const id = $(this).attr('id').replace('r', '');
+            const val = defaults[id];
+            $(`#${id}`).val(val);
+            $(`#${id}_t`).val(val);
+
+            jcmp.CallEvent('ctools/ChangeInput', id, val);
+        }
     })
 
     $("select").change(function()
     {
         jcmp.CallEvent('ctools/ChangeInput', 'changeWeather', $(this).val());
+    })
+
+    $(document).on("click", 'div.follow-player-entry', function()
+    {
+        jcmp.CallEvent('ctools/ChangeInput', 'ean', $(this).attr('id').replace('p_', ''));
     })
 
 
@@ -153,8 +187,33 @@ $(document).ready(function()
         jcmp.CallEvent('ctools/ChangeInput', "frcm");
     })
 
-    jcmp.AddEvent('ctools/changetracked', (name) => {
+    jcmp.AddEvent('ctools/changetracked', (name, id) => {
         $('#pfl').text("Currently following: " + name);
+
+        $('div.follow-player-entry').removeClass('selected');
+        $(`#p_${id}`).addClass('selected');
     })
+
+    jcmp.AddEvent('ctools/init_players', (data) => 
+    {
+        data = JSON.parse(data);
+
+        for (let i = 0; i < data.length; i++)
+        {
+            $('div.follow-players').append($(`<div class='follow-player-entry' id='p_${data[i].id}'></div>`).text(data[i].name));
+        }
+    })
+
+    jcmp.AddEvent('ctools/remove_player', (id) => 
+    {
+        $(`#p_${id}`).remove();
+    })
+
+    jcmp.AddEvent('ctools/add_player', (id, name) => 
+    {
+        $('div.follow-players').append($(`<div class='follow-player-entry' id='p_${id}'></div>`).text(name));
+    })
+
+    jcmp.CallEvent('ctools/loadedui');
 
 })
