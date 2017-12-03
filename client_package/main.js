@@ -103,7 +103,7 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
         let player = null;
         jcmp.players.forEach(function(p) 
         {
-            if (p.name.toLowerCase().search(value.toLowerCase()) > -1)
+            if (p.networkId == value)
             {
                 player = p;
             }
@@ -111,7 +111,7 @@ jcmp.ui.AddEvent('ctools/ChangeInput', (id, value) => {
         if (player != null)
         {
             //jcmp.debug('player found with name ' + value);
-            jcmp.ui.CallEvent('ctools/changetracked', player.name);
+            jcmp.ui.CallEvent('ctools/changetracked', player.name, player.networkId);
             tracked_player = player;
             tracked_id = player.networkId;
         }
@@ -326,13 +326,13 @@ function ProcessControllerRotation(index, value)
 
 jcmp.events.AddRemoteCallable('ctools/TODbroadcast', (tod) => {
     jcmp.events.Call('synctime/Disable');
-    jcmp.world.SetTime(parseInt(tod), 60 * (parseFloat(tod) - Math.floor(parseFloat(tod))), 0);
+    jcmp.world.SetTime(parseInt(tod), parseInt(60 * (parseFloat(tod) - Math.floor(parseFloat(tod)))), 0);
 })
 
 jcmp.ui.AddEvent('ctools/pathingsynccheck', () => {
     if (cam_type == "trcm" || cam_type == "trcm2")
     {
-        if (tracked_id != null && (typeof tracked_player == 'undefined' || tracked_player == null 
+        if (tracked_id !== null && (typeof tracked_player === 'undefined' || tracked_player === null 
         || dist(jcmp.localPlayer.position, jcmp.localPlayer.camera.position) > 300))
         {
             jcmp.events.CallRemote('ctools/movespectator', tracked_id);
@@ -491,6 +491,26 @@ jcmp.events.Add('GameUpdateRender', (r) => {
         }
 
     }
+})
+
+jcmp.ui.AddEvent('ctools/loadedui', () => 
+{
+    jcmp.events.CallRemote('ctools/loaded');
+})
+
+jcmp.events.AddRemoteCallable('ctools/init_players', (data) => 
+{
+    jcmp.ui.CallEvent('ctools/init_players', data);
+})
+
+jcmp.events.AddRemoteCallable('ctools/remove_player', (id) => 
+{
+    jcmp.ui.CallEvent('ctools/remove_player', id);
+})
+
+jcmp.events.AddRemoteCallable('ctools/add_player', (id, name) => 
+{
+    jcmp.ui.CallEvent('ctools/add_player', id, name);
 })
 
 jcmp.ui.AddEvent('ctools/debug', (s) => {

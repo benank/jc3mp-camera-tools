@@ -28,8 +28,33 @@ jcmp.events.AddRemoteCallable('ctools/movespectator', (player, id) => {
     {
         if (p.networkId == id)
         {
-            player.position = p.position.add(0,20,0);
+            player.position = p.position.sub(new Vector3f(0,75,0));
+            return;
         }
     });
 })
 
+jcmp.events.AddRemoteCallable('ctools/loaded', (player) => 
+{
+    const data = [];
+
+    for (let i = 0; i < jcmp.players.length; i++)
+    {
+        data.push({
+            name: jcmp.players[i].name,
+            id: jcmp.players[i].networkId
+        })
+    }
+
+    jcmp.events.CallRemote('ctools/init_players', player, JSON.stringify(data));
+})
+
+jcmp.events.Add('PlayerDestroyed', (player) => 
+{
+    jcmp.events.CallRemote('ctools/remove_player', null, player.networkId);
+})
+
+jcmp.events.Add('PlayerReady', (player) => 
+{
+    jcmp.events.CallRemote('ctools/add_player', null, player.networkId, player.name);
+})
